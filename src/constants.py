@@ -2,17 +2,22 @@
 """
 
 # imports
-from langchain_community.document_loaders import CSVLoader, UnstructuredExcelLoader, JSONLoader, PyPDFLoader, Docx2txtLoader, UnstructuredXMLLoader, UnstructuredMarkdownLoader
+from langchain_community.document_loaders import (
+    CSVLoader,
+    UnstructuredExcelLoader,
+    JSONLoader,
+    PyPDFLoader,
+    Docx2txtLoader,
+    UnstructuredXMLLoader,
+    UnstructuredMarkdownLoader,
+    TextLoader
+)
 
 
 SUPPORTED_EXTENSIONS = {
         '.pdf': PyPDFLoader,
         '.txt': TextLoader,
-        '.md': TextLoader,
+        '.md': UnstructuredMarkdownLoader,
         '.csv': CSVLoader,
-        '.docx': UnstructuredWordDocumentLoader,
-        '.doc': UnstructuredWordDocumentLoader
+        '.docx': Docx2txtLoader,
     }
-
-
-    
