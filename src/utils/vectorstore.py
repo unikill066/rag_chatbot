@@ -156,7 +156,7 @@ class VectorStore:
 
 #     from dotenv import load_dotenv
 #     load_dotenv()
-#     store_path = Path(__file__).parent.parent.parent / "faiss_vector_store"
+#     store_path = Path(__file__).parent.parent.parent / "faiss_vector_store"  # or import from constants.py file
 #     # generate fresh embeddings
 #     if store_path.exists():
 #         import shutil; shutil.rmtree(store_path)
