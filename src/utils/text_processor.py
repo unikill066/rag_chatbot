@@ -11,7 +11,6 @@ import logging
 from typing import List, Dict, Any
 from langchain.text_splitter import (RecursiveCharacterTextSplitter, CharacterTextSplitter, TokenTextSplitter)
 from langchain_core.documents import Document
-from pydantic.v1 import EnumMemberError
 
 # logging
 logger = logging.getLogger(__name__)
@@ -33,7 +32,15 @@ class TextProcessor:
         self.splitter = self._create_splitter(splitter_type)
 
     def _create_splitter(self, splitter_type: str):
-        """Create appropriate text splitter"""
+        """
+        Create and return a text splitter based on the specified type.
+
+        Args:
+            splitter_type: Type of splitter to create. Supported values include:
+                - 'recursive': RecursiveCharacterTextSplitter
+                - 'character': CharacterTextSplitter
+                - 'token': TokenTextSplitter
+        """
         splitters = {
             "recursive": RecursiveCharacterTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap, length_function=len, separators=["\n\n", "\n"," ", ""]),
             "character": CharacterTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap, separator="\n"),
@@ -44,12 +51,17 @@ class TextProcessor:
             raise ValueError(f"Unknown splitter type: {splitter_type}")
         return splitters[splitter_type]
 
-    def preprocess_text(self, text: str) -> str:
-        """Preprocess text (clean, normalize)"""
-        return ' '.join(text.strip().split())
-
     def chunk_documents(self, documents: List[Document]) -> List[Document]:
-        """Chunks documents into smaller chunks"""
+        """
+        Split a list of documents into smaller, manageable chunks.
+
+        This method applies the configured text splitter to each document,
+        producing a list of chunked Document objects suitable for retrieval
+        or embedding workflows.
+
+        Args:
+            documents: List of Document objects to be chunked.
+        """
         if not isinstance(documents, list):
             logger.warning("No documents to chunk")
             raise TypeError("Expected a list of Document instances")
@@ -69,3 +81,12 @@ class TextProcessor:
         except Exception as e:
             logger.error(f"Error chunking documents: {e}")
             raise
+
+# # testing
+# from document_loader import DocumentLoader
+# from langchain_community.document_loaders import CSVLoader, UnstructuredExcelLoader, JSONLoader, PyPDFLoader, Docx2txtLoader, UnstructuredXMLLoader, UnstructuredMarkdownLoader, TextLoader
+# SUPPORTED_EXTENSIONS = {'.pdf': PyPDFLoader, '.txt': TextLoader, '.md': UnstructuredMarkdownLoader, '.csv': CSVLoader, '.docx': Docx2txtLoader,}
+# doc_loader = DocumentLoader(SUPPORTED_EXTENSIONS)
+# documents = doc_loader.load_directory("/Users/discovery/Desktop/rag_chatbot/docs")
+# txt_proc = TextProcessor(chunk_size=400, chunk_overlap=100, splitter_type="recursive")
+# print(txt_proc.chunk_documents(documents))

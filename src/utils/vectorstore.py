@@ -4,7 +4,7 @@ Vector store management with FAISS
 """
 
 # imports
-import os, logging, pickle, faiss
+import os, logging, pickle, faiss, shutil
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from langchain_community.docstore.in_memory import InMemoryDocstore
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class VectorStore:
     """Manages FAISS vector store operations"""
 
-    def __init__(self, store_path: str, embedding_model: str = "text-embedding-ada-003"):
+    def __init__(self, store_path: str, embedding_model: str = "text-embedding-3-small"):
         """
         Initialize vector store manager
         
@@ -54,7 +54,11 @@ class VectorStore:
             raise
 
     def add_documents(self, documents: List[Document]) -> List[str]:
-        """Add documents to vector store"""
+        """
+        Add a list of documents to the vector store and return their assigned IDs.
+
+        Args:
+            documents: List of Document objects to be added to the vector store."""
         if not isinstance(documents, list):
             logging.error(f"Documents are not in expected list format: {documents}")
             raise
@@ -104,7 +108,15 @@ class VectorStore:
             return []
 
     def similarity_search_with_score(self, query: str, k: int = 4) -> List[tuple]:
-        """Search with similarity scores"""
+        """
+        Search for documents most similar to the given query using vector embeddings.
+
+        Args:
+            query: Text query to compare against the vector index.
+            k: Number of top-matching documents to return.
+            filter_dict: Optional metadata-based filters to apply before searching
+                        (e.g., {"source": "news"}).
+        """
         try:
             results = self.vector_store.similarity_search_with_score(query, k=k)
             logger.info(f"Retrieved {len(results)} documents with scores")
@@ -125,3 +137,30 @@ class VectorStore:
         
         except Exception as e:
             return {"status": "error", "error": str(e)}
+
+# # testing and generate indexes
+# # python vectorstore.py
+# if __name__ == '__main__':
+#     document_directory = Path("/Users/discovery/Desktop/rag_chatbot/docs")
+#     if not document_directory.exists():
+#         raise ValueError("Document directory does not exist")
+#     from document_loader import DocumentLoader
+#     from langchain_community.document_loaders import CSVLoader, PyPDFLoader, TextLoader
+#     doc_loader = DocumentLoader({'.pdf': PyPDFLoader, '.txt': TextLoader, '.csv': CSVLoader,})
+#     documents = doc_loader.load_directory(document_directory)
+#     print(f"Loaded {len(documents)} documents from {document_directory}")
+#     from text_processor import TextProcessor
+#     text_proc = TextProcessor(chunk_size=400, chunk_overlap=100, splitter_type="recursive")
+#     chunks = text_proc.chunk_documents(documents)
+#     print(f"Chunked {len(documents)} documents into {len(chunks)} chunks")
+
+#     from dotenv import load_dotenv
+#     load_dotenv()
+#     store_path = Path(__file__).parent.parent.parent / "faiss_vector_store"
+#     # generate fresh embeddings
+#     if store_path.exists():
+#         import shutil; shutil.rmtree(store_path)
+#     vec_store = VectorStore(store_path=store_path, embedding_model="text-embedding-3-small")
+#     vec_store.add_documents(chunks)
+#     print(f"Added {len(chunks)} chunks to vector store: {store_path}")
+#     print(vec_store.get_store_info())

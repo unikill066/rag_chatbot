@@ -9,9 +9,10 @@ Handles reading various document formats: .docx, .pdf, .html, .xml, .md, .txt
 import os, logging
 from pathlib import Path
 from typing import List, Optional, Any, Type, Dict
-from langchain_community.document_loaders import CSVLoader, UnstructuredExcelLoader, JSONLoader, PyPDFLoader, Docx2txtLoader, UnstructuredXMLLoader, UnstructuredMarkdownLoader
+from langchain_community.document_loaders import CSVLoader, UnstructuredExcelLoader, JSONLoader, PyPDFLoader, Docx2txtLoader, UnstructuredXMLLoader, UnstructuredMarkdownLoader, TextLoader
 from langchain_core.documents import Document
-from constants import SUPPORTED_EXTENSIONS
+# from constants import SUPPORTED_EXTENSIONS
+SUPPORTED_EXTENSIONS = {'.pdf': PyPDFLoader, '.txt': TextLoader, '.md': UnstructuredMarkdownLoader, '.csv': CSVLoader, '.docx': Docx2txtLoader,}
 
 # logging
 logging.basicConfig(level=logging.INFO)
@@ -156,5 +157,12 @@ class DocumentLoader:
         return {"total_documents": len(documents), "total_characters": total_chars,
             "average_chars_per_doc": total_chars // len(documents), "unique_sources": len(sources),
             "file_types": file_types, "processed_files": self.processed_files}
-        
-    
+
+# # testing
+# SUPPORTED_EXTENSIONS = {'.pdf': PyPDFLoader, '.txt': TextLoader, '.md': UnstructuredMarkdownLoader, '.csv': CSVLoader, '.docx': Docx2txtLoader,}
+# doc_loader = DocumentLoader(SUPPORTED_EXTENSIONS)
+# print(len(doc_loader.load_document("/Users/discovery/Desktop/rag_chatbot/docs/Nikhil_Nageshwar_InturiG.pdf")[0].page_content))
+# print(doc_loader.load_documents(["/Users/discovery/Desktop/rag_chatbot/docs/Nikhil_Nageshwar_InturiG.pdf", "/Users/discovery/Desktop/rag_chatbot/docs/Nikhil_Nageshwar_Inturi_cr.pdf"]))
+# print(doc_loader.load_directory("/Users/discovery/Desktop/rag_chatbot/docs"))
+# print(doc_loader.get_document_stats(doc_loader.load_documents(["/Users/discovery/Desktop/rag_chatbot/docs/Nikhil_Nageshwar_InturiG.pdf", "/Users/discovery/Desktop/rag_chatbot/docs/Nikhil_Nageshwar_Inturi_cr.pdf"])))
+# print(doc_loader.get_document_stats(doc_loader.load_documents(["/Users/discovery/Desktop/rag_chatbot/docs/Nikhil_Nageshwar_InturiG.pdf", ])))
